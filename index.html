@@ -4,11 +4,16 @@
     <meta charset="utf-8">
     <title>To do</title>
     <style>
+      body{
+        background-image: url('back.jpg');
+        background-color: rgb(72, 105, 013, 1);
+      }
       #optionrow{
         display: block;
         text-align: right;
       }
       li, ul {
+        text-decoration-color: #fff;
         margin: 0;
         border-bottom: 1px dashed #ccc;
         margin-bottom: 4px;
@@ -17,15 +22,20 @@
         border: 1px solid #ccc;
         background: #eee;
         padding: 5px 10px;
+        background-color: rgb(70, 74, 56, 0.2)
       }
-      ul, li{
-        border: 1px solid #ccc;
-        background: #eee;
-        padding: 5px 10px;
+      span, #todolistheader{
+        color: #E4E6E4;
+        text-shadow: 1px 0 #111111, -1px 0 #111111, 0 1px #111111, 0 -1px #111111
+      }
+      #inputText{
+      }
+      button{
+        background-color: rgb(256, 256, 256, 0.3)
       }
       .checked{
         text-decoration: line-through;
-        color: #c08;
+        color: rgb(176, 88, 88);
         font-weight: bold;
       }
       #itemList{
@@ -66,7 +76,7 @@
 
           <p class="inputarea">
             <input type="text" id="inputText" value="" placeholder="할 일" />
-            <button id="clear" onclick="alert">초기화</button>
+            <button id="clear" onclick="clearItems">초기화</button>
             <ul id="itemList">
             </ul>
           </p>
@@ -125,7 +135,7 @@
           button.id = 'button_'+a
           button.onclick = renameItem;
           button.innerText = "수정"
-          button.className = "btn btn-primary"
+          button.className = "btn btn-default"
           span.innerText = b
           span.id = 'item_'+ a;
           li.appendChild(span)
@@ -159,7 +169,7 @@
           button.id = 'button_'+list[i]
           button.onclick = renameItem;
           button.innerText = "수정"
-          button.className = "btn btn-primary"
+          button.className = "btn btn-default"
           span.innerText = b
           span.id = 'item_'+ list[i];
           li.appendChild(span)
@@ -281,7 +291,7 @@
 
         var button = document.createElement('button')
         button.innerText = "수정"
-        button.className = "btn btn-primary"
+        button.className = "btn btn-default"
         button.id = 'button_' + totalItems;
 
         var span = document.createElement('span');
