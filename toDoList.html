@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>To do</title>
+    <style>
+      #optionrow{
+        display: block;
+        text-align: right;
+      }
+      li, ul {
+        margin: 0;
+        border-bottom: 1px dashed #ccc;
+        margin-bottom: 4px;
+        width: 30em, auto;
+        height: auto;
+        border: 1px solid #ccc;
+        background: #eee;
+        padding: 5px 10px;
+      }
+      ul, li{
+        border: 1px solid #ccc;
+        background: #eee;
+        padding: 5px 10px;
+      }
+      .checked{
+        text-decoration: line-through;
+        color: #c08;
+        font-weight: bold;
+      }
+      #itemList{
+        padding: 100;
+        margin: 0;
+        width: 30em, auto;
+        height: auto;
+        vertical-align: middle;
+        cursor: default;
+      }
+      #donelist{
+        padding: 100;
+        margin: 0;
+        border-bottom: 1px dashed #ccc;
+        margin-bottom: 4px;
+        width: 30em, auto;
+        height: auto;
+        vertical-align: middle;
+        cursor: default;
+        text-decoration: line-through;
+        color: Red;
+      }
+    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="row" id="optionrow">
+        <a href="option.html" id="option">option</a>
+      </div>
+      <div class="row">
+        <a href="todolist.html"><h1 id="todolistheader">To do list</h1></a>
+      </div>
+      <div class="row">
+        <div class="col-sm-6">
+          <hr />
+          <p id="enter"></p>
+
+          <p class="inputarea">
+            <input type="text" id="inputText" value="" placeholder="할 일" />
+            <button id="clear" onclick="alert">초기화</button>
+            <ul id="itemList">
+            </ul>
+          </p>
+        </div>
+        <div class="col-sm-6">
+          <hr />
+          <p id="enter">Done</p>
+
+          <ul id="doneList">
+
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <canvas id="tutorial" width=auto height="100"></canvas>
+      </div>
+    </div>
+
+    <script>
+      var add = document.getElementById('add'); //add버튼
+      var inputText = document.getElementById('inputText') //적은 값
+      var totalItems = parseInt(localStorage.getItem('totalItems')); //할 일 갯수
+      var totalMoveItems = parseInt(localStorage.getItem('totalMoveItems'));
+      inputText.focus();
+
+      function start(){
+        console.log('start')
+        var itemList = document.getElementById('itemList');
+        var doneList = document.getElementById('doneList');
+        var test = 0
+        var sen = /d_/
+        var list = [];
+        var dlist= [];
+        for(i = 0; i < localStorage.length; i++){ //키 가져오기
+          if(localStorage.key(i) == 'totalItems' || localStorage.key(i) == 'totalMoveItems') continue
+          var li = document.createElement('li')
+          var span = document.createElement('span')
+          if(localStorage.key(i) == 0){
+            var itemList = document.getElementById('itemList');
+            var listItem = document.createElement('li');
+            listItem.id = 'li_'+ 0;
+            var span = document.createElement('span');
+            listItem.ondblclick = removeItem;
+            span.id = 'item_' + 0;
+            span.innerText = "도움말: 할 일을 입력하고 Enter키를 누르면 입력됩니다.\n"+
+            "수정 버튼을 누르면 할 일을 수정할 수 있고,\n"+
+            " 항목을 더블클릭하면 완료 리스트로 이동됩니다."
+            listItem.appendChild(span)
+            itemList.appendChild(listItem)
+            localStorage.setItem('0', span.innerText)
+            continue
+          }
+          var a = localStorage.key(i)
+          var b = localStorage.getItem(a);
+          var button = document.createElement('button')
+          button.id = 'button_'+a
+          button.onclick = renameItem;
+          button.innerText = "수정"
+          button.className = "btn btn-primary"
+          span.innerText = b
+          span.id = 'item_'+ a;
+          li.appendChild(span)
+          li.id = 'li_'+a;
+          li.ondblclick = moveItem;
+
+          if(sen.test(a)){
+            console.log('key:'+a+'do:'+b+'done')
+            dlist.push(a.replace("d_", ""))
+            //doneList.appendChild(li)
+          } else{
+            li.appendChild(button)
+            list.push(a);
+            console.log('key:'+a+'do:'+b)
+            //itemList.appendChild(li)
+          }
+        }
+        list.sort(function(a, b) { // 오름차순
+          return a - b;
+          // 1, 2, 3, 4, 10, 11
+        });
+        dlist.sort(function(a, b) { // 내림차순
+          return b - a;
+          // 1, 2, 3, 4, 10, 11
+        });
+        for(var i=0;i<list.length;i++){ //아이템 리스트 입력
+          var li = document.createElement('li')
+          var span = document.createElement('span')
+          var b = localStorage.getItem(list[i]);
+          var button = document.createElement('button')
+          button.id = 'button_'+list[i]
+          button.onclick = renameItem;
+          button.innerText = "수정"
+          button.className = "btn btn-primary"
+          span.innerText = b
+          span.id = 'item_'+ list[i];
+          li.appendChild(span)
+          li.id = 'li_'+list[i];
+          li.ondblclick = moveItem;
+          li.appendChild(button)
+          itemList.appendChild(li);
+        }
+        for(var i=0;i<dlist.length;i++){ //완료 리스트 입력
+          var li = document.createElement('li')
+          var span = document.createElement('span')
+          var c = "d_"+dlist[i]
+          var b = localStorage.getItem(c);
+          span.innerText = b
+          span.id = 'item_'+ dlist[i];
+          li.className = "checked"
+          li.appendChild(span)
+          li.id = 'li_'+dlist[i];
+          doneList.appendChild(li);
+        }
+        console.log(list);
+        console.log(dlist);
+      }
+      start();
+      function clearItems(){
+        console.log('Items is cleared')
+        totalItems = 1
+        localStorage.clear();
+        localStorage.setItem('totalItems', 1);
+        localStorage.setItem('totalMoveItems', 0);
+        localStorage.setItem('0', "")
+        window.location.reload()
+      }
+      document.getElementById('clear').onclick = clearItems;
+
+      function moveItem(){
+        console.log('Item is Moved')
+        //this == span
+        totalMoveItems++;
+        var donelist = document.getElementById('doneList');
+        var listItemId = this.id.replace('li_', '');
+        var listItem = document.createElement('li');
+        var span = document.createElement('span')
+        var itemText = document.getElementById('li_' + listItemId).innerText;
+        span.innerText = itemText.replace('수정', '');
+        span.id ="item_"+totalMoveItems
+        listItem.id = "li_"+totalMoveItems
+        listItem.className = "checked"
+        document.getElementById('li_' + listItemId).style.display = "none";
+        localStorage.setItem('d_'+totalMoveItems, localStorage.getItem(listItemId))
+        localStorage.setItem("totalMoveItems", totalMoveItems)
+        localStorage.removeItem(listItemId)
+        listItem.appendChild(span)
+        console.log(listItemId)
+        donelist.insertBefore(listItem ,donelist.childNodes[0]);
+      }
+
+      function renameItem(){
+        console.log('Item is renamed')
+        //this == span
+        var newText = prompt("뭔 이름으로 할건데");
+        var d = new Date();
+        var time = "\n" + "날짜: " + d.getFullYear() + "년 " +
+        d.getMonth() + "월 " + d.getDate() + "일 " + d.getHours() + "시 " +
+        d.getMinutes() + "분";
+
+        var spanId = this.id.replace('button_', '');
+        var span = document.getElementById("item_" + spanId);
+        if(!newText || newText ===" " || newText ==="") return false;
+
+        span.innerText = "할 일: " + newText + time;
+        localStorage.setItem(spanId, span.innerText);
+      }
+
+      function removeItem(){ //도움말 삭제용
+        //this == listItem
+        var listItemId = this.id.replace('li_', '');
+        document.getElementById('li_' + listItemId).style.display = "none";
+        localStorage.removeItem('0')
+        totalItems--
+      }
+
+      inputText.onkeyup = function(event){
+        if(event.which === 13){
+          console.log('press enter')
+          var itemText = inputText.value;
+          if(!itemText || itemText.value ==="" || itemText === " "){
+            console.log('do not input clear space')
+            return false;
+          }
+          addNewItem(document.getElementById('itemList'), itemText);
+          inputText.value = "";
+        }
+      } //엔터키
+
+      function updateItemStatus(){
+        var chId = this.id.replace('cb_','');
+        var itemText = document.getElementById('item_'+chId);
+
+        if(this.checked){
+          itemText.className = 'checked';
+        } else {
+          itemText.className = '';
+        }
+      }
+
+      function addNewItem(list, itemText){
+        totalItems++
+        var d = new Date();
+        var id = totalItems;
+
+        var listItem = document.createElement('li');
+        listItem.id = 'li_'+ id;
+        listItem.ondblclick = moveItem;
+
+        var time = "\n" + "날짜: " + d.getFullYear() + "년 " +
+        d.getMonth() + "월 " + d.getDate() + "일 " + d.getHours() + "시 " +
+        d.getMinutes() + "분 " + d.getSeconds() + "초";
+
+        var button = document.createElement('button')
+        button.innerText = "수정"
+        button.className = "btn btn-primary"
+        button.id = 'button_' + totalItems;
+
+        var span = document.createElement('span');
+        span.id = 'item_' + totalItems;
+        span.innerText = "할 일: " + itemText + time;
+        button.onclick = renameItem;
+
+        listItem.appendChild(span);
+        listItem.appendChild(button);
+        localStorage.setItem("totalItems", totalItems)
+        localStorage.setItem(totalItems, '할 일: '+itemText+time)
+        list.appendChild(listItem);
+        console.log('new Item is created')
+          //list.innerText = time;
+      } //할 일 추가
+    </script>
+  </body>
+</html>
